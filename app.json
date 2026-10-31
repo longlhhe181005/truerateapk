@@ -34,6 +34,12 @@
           "microphonePermission": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "0fc2cf1b-1c5d-4215-9734-308b8e93056f"
+      }
+    },
+    "owner": "longle6304"
   }
 }
