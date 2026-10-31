@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "TrueRate",
+    "slug": "truerate",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0a0d14",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "vn.truerate.app"
+    },
+    "android": {
+      "package": "vn.truerate.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0a0d14",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "name": "TrueRate · Lãi Suất Thật"
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TrueRate cần quyền xem ảnh để đọc 4 con số trong hợp đồng vay của bạn.",
+          "cameraPermission": "TrueRate cần quyền camera để chụp hợp đồng vay và tự điền các ô.",
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}
