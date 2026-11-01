@@ -2,6 +2,8 @@
 
 React Native (Expo) app for the TrueRate project (EXE101, Group 4 · IB1908): type four numbers from a loan contract and get the true yearly rate, the lender's licence status, a risk label, a plain-language explanation and your rights.
 
+**Download APK (Android):** [TrueRate.apk](https://expo.dev/artifacts/eas/_7Jlk4-bmWNqfIbWqxAOF76x2O-Fu-Qf3c3tN5FUFBM.apk)
+
 ## Features
 
 | User story | In the app |
