@@ -1,6 +1,8 @@
 // Optional link to the TrueRate Spring Boot backend (truerateapk-backend). The AI key lives only on that server.
 // Without EXPO_PUBLIC_API_URL, or when the server is unreachable, the app keeps its fixed explanation text.
 import { Platform } from 'react-native';
+import { File } from 'expo-file-system';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 
 export const API_URL = (process.env.EXPO_PUBLIC_API_URL || '').replace(/\/+$/, '');
 export const hasBackend = Boolean(API_URL);
@@ -52,6 +54,22 @@ export async function explain(input) {
   return { explanation, legalComparison, nextStep, nextStepText, ai };
 }
 
+/**
+ * Camera photos can pass the server's 5 MB limit and may be HEIC. This size keeps small print readable
+ * and always gives a JPEG well under the limit.
+ */
+const MAX_PHOTO_SIDE = 2000;
+
+async function toUploadableJpeg(asset) {
+  const context = ImageManipulator.manipulate(asset.uri);
+  if (Math.max(asset.width || 0, asset.height || 0) > MAX_PHOTO_SIDE) {
+    context.resize(asset.width >= asset.height ? { width: MAX_PHOTO_SIDE } : { height: MAX_PHOTO_SIDE });
+  }
+  const image = await context.renderAsync();
+  const { uri } = await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 });
+  return uri;
+}
+
 /** Reads the loan fields from contract photos. assets: ImagePicker assets. */
 export async function readContract(assets) {
   if (!hasBackend) {
@@ -59,13 +77,14 @@ export async function readContract(assets) {
   }
   const form = new FormData();
   for (const [i, a] of assets.entries()) {
-    const name = a.fileName || `contract-${i + 1}.jpg`;
-    const type = a.mimeType || 'image/jpeg';
+    const uri = await toUploadableJpeg(a);
+    const name = `contract-${i + 1}.jpg`;
     if (Platform.OS === 'web') {
-      const blob = await (await fetch(a.uri)).blob();
+      const blob = await (await fetch(uri)).blob();
       form.append('file', blob, name);
     } else {
-      form.append('file', { uri: a.uri, name, type });
+      // Expo's fetch rejects React Native's { uri, name, type } form parts, but accepts a File
+      form.append('file', new File(uri));
     }
   }
   form.append('consent', 'true');
@@ -73,7 +92,10 @@ export async function readContract(assets) {
   const res = await withTimeout(
     fetch(`${API_URL}/api/ocr`, { method: 'POST', body: form }),
     45000
-  );
+  ).catch((e) => {
+    // fetch reports a network failure as a TypeError with English text
+    throw e instanceof TypeError ? new Error('Không kết nối được máy chủ. Bạn có thể nhập tay.') : e;
+  });
   const body = await res.json().catch(() => null);
   if (!res.ok) throw new Error(firstError(body, `Không đọc được ảnh (${res.status})`));
   return body;

@@ -145,10 +145,12 @@ export default function CheckScreen({ navigation }) {
     setReading(true);
     try {
       const r = await readContract(picked.assets);
+      // Instalment contracts often state only the amount per period; the AI never adds them up, so code does.
+      const total = r.totalRepayVnd || (r.installments && r.installmentVnd ? r.installments * r.installmentVnd : null);
       setForm((f) => ({
         ...f,
         principal: r.principalVnd ? formatMoneyInput(r.principalVnd) : f.principal,
-        totalRepay: r.totalRepayVnd ? formatMoneyInput(r.totalRepayVnd) : f.totalRepay,
+        totalRepay: total ? formatMoneyInput(total) : f.totalRepay,
         termDays: r.termDays ? String(r.termDays) : f.termDays,
         installments: r.installments ? String(r.installments) : f.installments,
         repaymentType: r.installments ? 'MONTHLY' : f.repaymentType,
