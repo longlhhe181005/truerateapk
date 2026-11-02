@@ -1,4 +1,4 @@
-// Optional link to the TrueRate Spring Boot backend (EXE101/TrueRate). The AI key lives only on that server.
+// Optional link to the TrueRate Spring Boot backend (truerateapk-backend). The AI key lives only on that server.
 // Without EXPO_PUBLIC_API_URL, or when the server is unreachable, the app keeps its fixed explanation text.
 import { Platform } from 'react-native';
 
@@ -18,6 +18,11 @@ async function withTimeout(promise, ms) {
 }
 
 const firstError = (body, fallback) => body?.errors?.[0]?.message || fallback;
+
+/** Free hosting sleeps when idle: a request at launch wakes it before the first check. Sends no loan data. */
+export function wakeServer() {
+  if (hasBackend) fetch(`${API_URL}/api/health`).catch(() => {});
+}
 
 /** { status, aiMode, ocr } or throws. */
 export async function health() {

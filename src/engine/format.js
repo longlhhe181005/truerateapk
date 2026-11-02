@@ -5,11 +5,12 @@ const group = (intStr) => intStr.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 /** 5000000 -> "5.000.000đ" */
 export const vnd = (v) => `${v < 0 ? '-' : ''}${group(String(Math.abs(Math.round(v || 0))))}đ`;
 
-/** 1385.94 -> "1.386", 23.456 -> "23,5" (one decimal under 100) */
-export function percent(v) {
+/** 1385.94 -> "1.386", 23.456 -> "23,5" (one decimal under 100, or `digits` for small reference rates) */
+export function percent(v, digits = 1) {
   if (v >= 100) return group(String(Math.round(v)));
-  const [i, d] = v.toFixed(1).split('.');
-  return d === '0' ? group(i) : `${group(i)},${d}`;
+  const [i, d] = v.toFixed(digits).split('.');
+  const decimals = d.replace(/0+$/, '');
+  return decimals ? `${group(i)},${decimals}` : group(i);
 }
 
 /** Text typed in a money field -> digits grouped with dots, e.g. "5000000" -> "5.000.000". */

@@ -56,12 +56,13 @@ export default function GuideScreen() {
             P là số tiền bạn thực nhận, R là tổng số phải trả, d là số ngày vay.
           </Text>
           <View style={styles.formula}>
-            <Text style={styles.formulaText}>Lãi đơn/năm = (R − P) / P × 365 / d</Text>
-            <Text style={styles.formulaText}>Lãi kép/năm = (1 + (R − P) / P)^(365 / d) − 1</Text>
+            <Text style={styles.formulaText}>Lãi trong kỳ vay = (R − P) / P</Text>
+            <Text style={styles.formulaText}>Mốc cho d ngày = P × mốc %/năm × d / 365</Text>
           </View>
           <Text style={textStyles.muted}>
-            Nhãn rủi ro dùng lãi đơn, cùng cách tính với mốc tham khảo 20%/năm (Bộ luật Dân sự) và 100%/năm. Với trả
-            góp, ứng dụng tìm lãi suất tháng làm cho các kỳ trả bằng đúng số tiền bạn nhận (IRR), rồi nhân 12.
+            Ứng dụng chỉ tính lãi trên đúng số ngày vay, không quy ra năm. Mốc tham khảo 20%/năm (Bộ luật Dân sự) và
+            100%/năm được luật nêu theo năm, nên được đổi về d ngày rồi so với tiền lãi bạn phải trả. Với trả góp, mốc
+            là tổng lãi của các kỳ trả đều, tính trên dư nợ giảm dần.
           </Text>
           <Text style={textStyles.muted}>
             Mọi con số và nhãn đều do code quyết định. AI (nếu bật) chỉ diễn đạt lại kết quả cho dễ hiểu.
@@ -71,7 +72,14 @@ export default function GuideScreen() {
         <Card title="Quyền riêng tư" icon="lock-closed">
           <Bullet>Không hỏi tên, CCCD, số điện thoại. Không cần tài khoản.</Bullet>
           <Bullet>Phép tính chạy trên máy. Lịch sử chỉ lưu khi bạn bật, và chỉ trên máy này.</Bullet>
-          <Bullet>Ảnh hợp đồng chỉ được đọc 4 mục cần thiết rồi bỏ đi, không lưu lại.</Bullet>
+          <Bullet>
+            Số liệu khoản vay và tên bên cho vay được gửi qua máy chủ TrueRate tới nhà cung cấp AI (OpenAI) để viết phần
+            giải thích.
+          </Bullet>
+          <Bullet>
+            Ảnh hợp đồng cũng đi theo đường đó để đọc 4 mục cần thiết. TrueRate không lưu lại ảnh, nhưng bạn nên che
+            thông tin cá nhân trên ảnh trước khi gửi.
+          </Bullet>
         </Card>
 
         <Card title="Máy chủ AI" icon="server">

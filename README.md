@@ -1,6 +1,6 @@
 # TrueRate · Lãi Suất Thật (mobile)
 
-React Native (Expo) app for the TrueRate project (EXE101, Group 4 · IB1908): type four numbers from a loan contract and get the true yearly rate, the lender's licence status, a risk label, a plain-language explanation and your rights.
+React Native (Expo) app for the MMA course: type four numbers from a loan contract and get the interest over the loan's own term (never annualised), the lender's licence status, a risk label, a plain-language explanation and your rights.
 
 **Download APK (Android):** [TrueRate.apk](https://expo.dev/artifacts/eas/_7Jlk4-bmWNqfIbWqxAOF76x2O-Fu-Qf3c3tN5FUFBM.apk)
 
@@ -9,7 +9,7 @@ React Native (Expo) app for the TrueRate project (EXE101, Group 4 · IB1908): ty
 | User story | In the app |
 |---|---|
 | US-01/02 Enter loan numbers, clear errors | `CheckScreen` with per-field validation, one-time or monthly repayment |
-| US-03 True APR, total cost, fee checklist, hidden-cost warning | `ResultScreen`: rate meter, 20%/100% reference costs, scenario check against the stated rate |
+| US-03 Interest over the term, total cost, fee checklist, hidden-cost warning | `ResultScreen`: rate meter, 20%/100% references converted to the loan's days, scenario check against the stated rate |
 | US-04 Consent before any processing | `ConsentScreen` on first launch |
 | US-05 Licence check | Exact match = licensed, near match = undetermined (copycat names never shown as licensed) |
 | US-06 One risk label | Code-only labelling matrix (licence × rate × warning signs) |
@@ -44,15 +44,15 @@ npm install
 npx expo start        # press w for web, a for Android emulator, or scan the QR code with Expo Go
 ```
 
-### Optional: AI explanation and photo reading
+### AI explanation and photo reading
 
-Run the backend (`EXE101/TrueRate`, `run.bat`) with its AI key in the backend's own `.env`, then create `.env` here:
+These need the backend ([truerateapk-backend](https://github.com/longlhhe181005/truerateapk-backend)). Create `.env` here:
 
 ```
-EXPO_PUBLIC_API_URL=http://<your-computer-LAN-IP>:8080
+EXPO_PUBLIC_API_URL=https://truerateapk-backend.onrender.com
 ```
 
-The AI key never goes into the app.
+To use your own copy of the backend, run it with its AI key in its own `.env` and set `http://<your-computer-LAN-IP>:8080` instead. The AI key never goes into the app.
 
 ## Build the APK
 
@@ -60,4 +60,4 @@ The AI key never goes into the app.
 npx eas-cli build -p android --profile preview
 ```
 
-The `preview` profile in `eas.json` produces an installable `.apk`.
+The `preview` profile in `eas.json` produces an installable `.apk` and sets the backend address for that build.

@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Bullet, Button, Card, Row, textStyles } from '../components/ui';
 import RiskBadge from '../components/RiskBadge';
 import RateMeter from '../components/RateMeter';
-import { aprText } from '../engine/explainer';
 import { percent, vnd } from '../engine/format';
 import { colors, radius } from '../theme';
 
@@ -23,11 +22,13 @@ const SCENARIO_STATUS = {
 };
 
 /** US-12: anonymous result card, no lender name or amounts that identify the user. */
+// The backend reports who wrote the text: "openai" or "claude", or "offline" for the fixed template.
+const isAiWritten = (r) => ['openai', 'claude'].includes(r.ai?.mode);
+
 const shareText = (r) =>
   [
     'Mình vừa kiểm tra một khoản vay bằng TrueRate:',
-    `• Trả thêm ${percent(r.extraPercent)}% so với số tiền nhận được`,
-    `• Lãi suất thật: ${aprText(r.aprPercent, r.aprCapped)}`,
+    `• Trả thêm ${percent(r.extraPercent)}% số tiền nhận được chỉ trong ${r.termDays} ngày`,
     `• Đánh giá: ${r.risk.title}`,
     'Biết lãi suất thật trước khi ký. TrueRate · Lãi Suất Thật',
   ].join('\n');
@@ -42,16 +43,18 @@ export default function ResultScreen({ route, navigation }) {
     <SafeAreaView style={styles.screen} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
         <Card>
-          <RateMeter value={r.aprPercent} capped={r.aprCapped} />
-          <Text style={textStyles.muted}>
-            Bạn trả thêm {vnd(r.extraCostVnd)} ({percent(r.extraPercent)}% số tiền nhận) trong {r.termDays}{' '}
-            ngày. Con số {percent(r.extraPercent)}% nghe nhỏ, nhưng quy ra năm là{' '}
-            {aprText(r.aprPercent, r.aprCapped)}.
-          </Text>
-          <Row
-            label="Nếu lãi chồng lãi (đáo hạn liên tục)"
-            value={r.compoundCapped ? '> 1.000.000%' : `${percent(r.compoundPercent)}%`}
+          <RateMeter
+            value={r.extraPercent}
+            days={r.termDays}
+            principal={r.principalVnd}
+            extra={r.extraCostVnd}
+            cap20={r.legalCap.cap20Vnd}
+            cap100={r.legalCap.cap100Vnd}
           />
+          <Text style={textStyles.muted}>
+            Bạn trả thêm {vnd(r.extraCostVnd)} ({percent(r.extraPercent)}% số tiền nhận) trong {r.termDays} ngày. Hai
+            vạch trên thanh là mốc tham khảo 20%/năm và 100%/năm đã tính cho đúng {r.termDays} ngày này.
+          </Text>
         </Card>
 
         <RiskBadge risk={r.risk} />
@@ -71,13 +74,13 @@ export default function ResultScreen({ route, navigation }) {
           <Text style={styles.small}>Danh sách: {r.licence.listVersion} (bản demo, không phải danh sách chính thức của NHNN)</Text>
         </Card>
 
-        <Card title="So với mốc tham khảo" icon="scale">
+        <Card title={`So với mốc tham khảo cho ${r.termDays} ngày`} icon="scale">
           <Row label="Tiền bạn trả thêm" value={vnd(r.legalCap.actualVnd)} strong />
-          <Row label="Mức lãi 20%/năm sẽ là" value={vnd(r.legalCap.cap20Vnd)} />
-          <Row label="Mức lãi 100%/năm sẽ là" value={vnd(r.legalCap.cap100Vnd)} />
+          <Row label="Mốc 20%/năm, tính cho số ngày vay" value={vnd(r.legalCap.cap20Vnd)} />
+          <Row label="Mốc 100%/năm, tính cho số ngày vay" value={vnd(r.legalCap.cap100Vnd)} />
           {r.legalCap.multipleOf20 != null && (
             <Text style={textStyles.muted}>
-              Bạn đang trả gấp {percent(r.legalCap.multipleOf20)} lần mức 20%/năm.
+              Bạn đang trả gấp {percent(r.legalCap.multipleOf20)} lần mốc 20%/năm tính cho {r.termDays} ngày.
             </Text>
           )}
         </Card>
@@ -183,14 +186,15 @@ export default function ResultScreen({ route, navigation }) {
         <Card title="Giải thích" icon="chatbubble-ellipses">
           <View style={styles.aiChip}>
             <Ionicons
-              name={r.ai?.mode === 'online' ? 'sparkles' : 'document-text-outline'}
+              name={isAiWritten(r) ? 'sparkles' : 'document-text-outline'}
               size={12}
               color={colors.accent}
             />
             <Text style={styles.aiChipText}>
-              {r.ai?.mode === 'online' ? 'AI giải thích' : 'Giải thích soạn sẵn'}
+              {isAiWritten(r) ? 'AI giải thích' : 'Giải thích soạn sẵn'}
             </Text>
           </View>
+          {!isAiWritten(r) && r.ai?.note ? <Text style={textStyles.muted}>{r.ai.note}</Text> : null}
           <Text style={textStyles.body}>{r.explanation}</Text>
           <Text style={textStyles.body}>{r.legalComparison}</Text>
           <View style={styles.nextStep}>

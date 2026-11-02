@@ -5,8 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import RiskBadge from '../components/RiskBadge';
 import { StateView, textStyles } from '../components/ui';
 import useApp from '../hooks/useApp';
-import { aprText } from '../engine/explainer';
-import { vnd } from '../engine/format';
+import { percent, vnd } from '../engine/format';
 import { colors, levelColor, radius } from '../theme';
 
 const confirm = (title, message, onConfirm) => {
@@ -56,7 +55,7 @@ export default function HistoryScreen({ navigation }) {
             <Ionicons name="trash-outline" size={18} color={colors.muted} />
           </TouchableOpacity>
         </View>
-        <Text style={styles.rate}>{aprText(r.aprPercent, r.aprCapped)}</Text>
+        <Text style={styles.rate}>{percent(r.extraPercent)}% trong {r.termDays} ngày</Text>
         <Text style={textStyles.muted}>
           Nhận {vnd(r.principalVnd)} · trả {vnd(r.totalRepayVnd)} · {r.termDays} ngày
         </Text>

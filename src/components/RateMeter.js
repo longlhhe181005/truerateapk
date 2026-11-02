@@ -3,28 +3,33 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors, radius } from '../theme';
 import { percent } from '../engine/format';
 
-// Log-scale bar so 20%, 100% and 1.000% all fit on one line.
-const MAX = 2000;
-const pos = (v) => Math.min(1, Math.log10(1 + Math.max(0, v)) / Math.log10(1 + MAX));
+// Log-scale bar measured in multiples of the 20% reference for this loan's term, so the two marks
+// stay apart for any number of days and interest up to 100 times the reference still fits.
+const MAX_MULTIPLE = 100;
 
-export default function RateMeter({ value, capped }) {
-  const color = value <= 20 ? colors.safe : value <= 100 ? colors.caution : colors.danger;
+export default function RateMeter({ value, days, principal, extra, cap20, cap100 }) {
+  const unit = Math.max(cap20, 1);
+  const pos = (v) => Math.min(1, Math.log10(1 + Math.max(0, v) / unit) / Math.log10(1 + MAX_MULTIPLE));
+  const color = extra <= cap20 ? colors.safe : extra <= cap100 ? colors.caution : colors.danger;
   return (
     <View style={styles.wrap}>
-      <Text style={styles.caption}>Lãi suất thật / năm</Text>
+      <Text style={styles.caption}>Lãi trong {days} ngày vay</Text>
       <Text style={[styles.value, { color }]}>
-        {capped ? '> 1.000.000' : percent(value)}
+        {percent(value)}
         <Text style={styles.unit}>%</Text>
       </Text>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${pos(value) * 100}%`, backgroundColor: color }]} />
-        {[20, 100].map((m) => (
+        <View style={[styles.fill, { width: `${pos(extra) * 100}%`, backgroundColor: color }]} />
+        {[cap20, cap100].map((m) => (
           <View key={m} style={[styles.mark, { left: `${pos(m) * 100}%` }]} />
         ))}
       </View>
       <View style={styles.legend}>
-        <Text style={[styles.legendText, { left: `${pos(20) * 100}%` }]}>20%</Text>
-        <Text style={[styles.legendText, { left: `${pos(100) * 100}%` }]}>100%</Text>
+        {[cap20, cap100].map((m) => (
+          <Text key={m} style={[styles.legendText, { left: `${pos(m) * 100}%` }]}>
+            {percent((m / principal) * 100, 2)}%
+          </Text>
+        ))}
       </View>
     </View>
   );

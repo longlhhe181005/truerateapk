@@ -16,42 +16,43 @@ export const DISCLAIMER =
   'Công cụ chỉ cung cấp thông tin tham khảo dựa trên số liệu bạn nhập, không thay thế tư vấn pháp lý chính thức ' +
   'và không xác minh hợp đồng có thật hay không.';
 
-export const aprText = (apr, capped) =>
-  capped ? 'hơn 1.000.000%/năm' : `${percent(apr)}%/năm`;
-
-const COMPARISON = {
-  LICENSED_LOW: ['Mức này không vượt mốc tham khảo 20%/năm của Bộ luật Dân sự.', 'NO_ACTION_NEEDED'],
-  LICENSED_HIGH: [
-    'Mức này cao hơn mốc tham khảo 20%/năm. Mốc này có áp dụng cho công ty tài chính được cấp phép hay không cần luật sư xác nhận.',
-    'SEEK_LICENSED_LENDER',
-  ],
-  LICENSED_VERY_HIGH: [
-    'Mức này vượt xa mốc tham khảo 20%/năm. Hãy kiểm tra lại các con số bạn đã nhập.',
-    'SEEK_LEGAL_ADVICE',
-  ],
-  SERIOUS: [
-    'Mức này vượt cả mốc 20%/năm và mốc 100%/năm, và không tìm thấy bên cho vay trong danh sách cấp phép. Đây là dấu hiệu cần đặc biệt thận trọng.',
-    'SEEK_LEGAL_ADVICE',
-  ],
-  RISK_SIGNALS: [
-    'Bạn đã đánh dấu các dấu hiệu đáng ngờ và chưa xác minh được bên cho vay. Lãi suất thấp không có nghĩa là an toàn.',
-    'SEEK_LEGAL_ADVICE',
-  ],
-  NOT_FOUND: [
-    'Chưa tìm thấy bên cho vay trong danh sách cấp phép hiện có, nên chưa thể xác minh tư cách pháp lý của họ.',
-    'SEEK_LEGAL_ADVICE',
-  ],
+const comparison = (riskCode, days, cap20, cap100) => {
+  const ref20 = `mức ${vnd(cap20)}, là mốc tham khảo 20%/năm tính cho ${days} ngày vay`;
+  switch (riskCode) {
+    case 'LICENSED_LOW':
+      return [`Tiền lãi này không vượt ${ref20}.`, 'NO_ACTION_NEEDED'];
+    case 'LICENSED_HIGH':
+      return [
+        `Tiền lãi này cao hơn ${ref20}. Mốc này có áp dụng cho công ty tài chính được cấp phép hay không cần luật sư xác nhận.`,
+        'SEEK_LICENSED_LENDER',
+      ];
+    case 'LICENSED_VERY_HIGH':
+      return [`Tiền lãi này vượt xa ${ref20}. Hãy kiểm tra lại các con số bạn đã nhập.`, 'SEEK_LEGAL_ADVICE'];
+    case 'SERIOUS':
+      return [
+        `Tính cho ${days} ngày vay, tiền lãi này vượt cả mốc 20%/năm (${vnd(cap20)}) và mốc 100%/năm (${vnd(cap100)}), và không tìm thấy bên cho vay trong danh sách cấp phép. Đây là dấu hiệu cần đặc biệt thận trọng.`,
+        'SEEK_LEGAL_ADVICE',
+      ];
+    case 'RISK_SIGNALS':
+      return [
+        'Bạn đã đánh dấu các dấu hiệu đáng ngờ và chưa xác minh được bên cho vay. Lãi suất thấp không có nghĩa là an toàn.',
+        'SEEK_LEGAL_ADVICE',
+      ];
+    case 'NOT_FOUND':
+      return [
+        'Chưa tìm thấy bên cho vay trong danh sách cấp phép hiện có, nên chưa thể xác minh tư cách pháp lý của họ.',
+        'SEEK_LEGAL_ADVICE',
+      ];
+    default:
+      return ['Chưa xác định được bên cho vay nên chưa thể đối chiếu đầy đủ với quy định.', 'SEEK_LEGAL_ADVICE'];
+  }
 };
 
-export function fallbackExplain({ apr, capped, riskCode, principal, totalRepay, days }) {
+export function fallbackExplain({ termPercent, cap20, cap100, riskCode, principal, totalRepay, days }) {
   const explanation =
     `Bạn nhận ${vnd(principal)} và phải trả ${vnd(totalRepay)} sau ${days} ngày, ` +
-    `tức trả thêm ${vnd(totalRepay - principal)}. Quy đổi theo năm (tính lãi đơn, không cộng dồn), ` +
-    `lãi suất là khoảng ${aprText(apr, capped)}.`;
-  const [legalComparison, nextStep] = COMPARISON[riskCode] || [
-    'Chưa xác định được bên cho vay nên chưa thể đối chiếu đầy đủ với quy định.',
-    'SEEK_LEGAL_ADVICE',
-  ];
+    `tức trả thêm ${vnd(totalRepay - principal)}, bằng ${percent(termPercent)}% số tiền nhận được trong ${days} ngày đó.`;
+  const [legalComparison, nextStep] = comparison(riskCode, days, cap20, cap100);
   return {
     explanation,
     legalComparison,

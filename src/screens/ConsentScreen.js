@@ -23,8 +23,8 @@ export default function ConsentScreen() {
           <Text style={{ color: colors.muted }}>Lãi suất bạn thực sự trả.</Text>
         </Text>
         <Text style={textStyles.muted}>
-          Nhập 4 con số trong hợp đồng vay để biết lãi suất thật mỗi năm, bên cho vay có trong danh sách
-          cấp phép hay không, và nên làm gì tiếp theo.
+          Nhập 4 con số trong hợp đồng vay để biết lãi thật trong đúng số ngày vay, bên cho vay có trong danh
+          sách cấp phép hay không, và nên làm gì tiếp theo.
         </Text>
 
         <Card title="Trước khi bắt đầu" icon="lock-closed">
@@ -34,8 +34,12 @@ export default function ConsentScreen() {
             Lịch sử kiểm tra mặc định tắt. Nếu bạn bật, dữ liệu chỉ lưu trên máy này và xóa được bất cứ lúc nào.
           </Bullet>
           <Bullet>
-            Khi bạn dùng giải thích bằng AI hoặc đọc ảnh hợp đồng, số liệu khoản vay (không có thông tin cá nhân)
-            được gửi tới máy chủ TrueRate để xử lý rồi bỏ đi.
+            Mỗi lần kiểm tra, số liệu khoản vay và tên bên cho vay được gửi qua máy chủ TrueRate tới nhà cung cấp
+            AI (OpenAI) để viết phần giải thích. TrueRate không lưu lại các số liệu này.
+          </Bullet>
+          <Bullet>
+            Nếu bạn dùng tính năng đọc ảnh, ảnh hợp đồng cũng được gửi theo đường đó. Hãy che thông tin cá nhân trên
+            ảnh trước khi gửi.
           </Bullet>
           <Bullet>
             Kết quả chỉ để tham khảo, không thay thế tư vấn pháp lý và không xác minh hợp đồng có thật hay không.

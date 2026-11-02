@@ -32,15 +32,8 @@ export function analyze(input) {
   const signalCodes = [...new Set((input.signals || []).filter((s) => SIGNALS[s]))];
   const stated = input.statedRatePercent ?? null;
 
-  const aprPercent = monthly ? apr.instalmentSimplePercent(p, r, n) : apr.simplePercent(p, r, days);
-  const compound = monthly
-    ? apr.instalmentCompoundPercent(p, r, n)
-    : apr.compoundPercent(p, r, days);
-  const capped = apr.isCapped(aprPercent);
-  const licence = checkLicence(lender);
-  const risk = classify(licence.status, aprPercent, signalCodes.length);
   const extra = r - p;
-
+  const extraPercent = round1((extra / p) * 100);
   const cap20 = monthly
     ? apr.referenceCostInstalments(p, n, CIVIL_REFERENCE_PERCENT)
     : apr.referenceCostOneTime(p, days, CIVIL_REFERENCE_PERCENT);
@@ -48,17 +41,16 @@ export function analyze(input) {
     ? apr.referenceCostInstalments(p, n, CRIMINAL_REFERENCE_PERCENT)
     : apr.referenceCostOneTime(p, days, CRIMINAL_REFERENCE_PERCENT);
 
+  const licence = checkLicence(lender);
+  const risk = classify(licence.status, extra, cap20, cap100, signalCodes.length);
+
   const result = {
     createdAt: new Date().toISOString(),
     repaymentType: monthly ? 'MONTHLY' : 'ONE_TIME',
-    aprPercent: round1(aprPercent),
-    aprCapped: capped,
-    compoundPercent: round1(compound),
-    compoundCapped: apr.isCapped(compound),
     principalVnd: p,
     totalRepayVnd: r,
     extraCostVnd: extra,
-    extraPercent: round1((extra / p) * 100),
+    extraPercent,
     termDays: days,
     lenderName: lender,
     licence,
@@ -72,8 +64,9 @@ export function analyze(input) {
     rights: rightsForLevel(risk.level),
     disclaimer: DISCLAIMER,
     ...fallbackExplain({
-      apr: aprPercent,
-      capped,
+      termPercent: extraPercent,
+      cap20,
+      cap100,
       riskCode: risk.code,
       principal: p,
       totalRepay: r,

@@ -1,5 +1,6 @@
 // The labelling matrix (business rule BR-02). Decided by code, never by AI. Ported from risk/RiskClassifier.java.
-// A high rate alone is never called illegal. "Serious" needs BOTH: no licence found AND rate above 100% per year.
+// The interest paid is compared with the reference levels converted to the loan's own term (cap20, cap100).
+// A high rate alone is never called illegal. "Serious" needs BOTH: no licence found AND interest above cap100.
 import { LICENSED, UNDETERMINED } from './licence';
 
 export const CIVIL_REFERENCE_PERCENT = 20;
@@ -15,7 +16,7 @@ export const SIGNALS = {
 
 const label = (code, level, title, message) => ({ code, level, title, message });
 
-function classifyBase(licence, apr) {
+function classifyBase(licence, extra, cap20, cap100) {
   if (licence === UNDETERMINED) {
     return label(
       'UNDETERMINED',
@@ -26,20 +27,20 @@ function classifyBase(licence, apr) {
     );
   }
   if (licence === LICENSED) {
-    if (apr <= CIVIL_REFERENCE_PERCENT) {
+    if (extra <= cap20) {
       return label(
         'LICENSED_LOW',
         'low',
         'Có trong danh sách cấp phép · lãi thấp',
-        'Đơn vị có trong danh sách cấp phép và lãi suất thực nằm trong mức tham khảo 20%/năm.'
+        'Đơn vị có trong danh sách cấp phép và tiền lãi nằm trong mức tham khảo 20%/năm tính cho số ngày vay.'
       );
     }
-    if (apr <= CRIMINAL_REFERENCE_PERCENT) {
+    if (extra <= cap100) {
       return label(
         'LICENSED_HIGH',
         'caution',
         'Có trong danh sách cấp phép · lãi cao hơn mức tham khảo',
-        'Đơn vị có trong danh sách cấp phép nhưng lãi suất thực cao hơn mức tham khảo 20%/năm. ' +
+        'Đơn vị có trong danh sách cấp phép nhưng tiền lãi cao hơn mức tham khảo 20%/năm tính cho số ngày vay. ' +
           'Hãy so sánh với các lựa chọn khác trước khi vay.'
       );
     }
@@ -47,15 +48,15 @@ function classifyBase(licence, apr) {
       'LICENSED_VERY_HIGH',
       'high',
       'Có trong danh sách cấp phép · lãi rất cao',
-      'Lãi suất thực rất cao so với mốc tham khảo. Hãy đối chiếu các con số với hợp đồng gốc (có thể nhập nhầm), và hỏi bên cho vay bằng văn bản về từng khoản phí.'
+      'Tiền lãi rất cao so với mốc tham khảo tính cho số ngày vay. Hãy đối chiếu các con số với hợp đồng gốc (có thể nhập nhầm), và hỏi bên cho vay bằng văn bản về từng khoản phí.'
     );
   }
-  if (apr > CRIMINAL_REFERENCE_PERCENT) {
+  if (extra > cap100) {
     return label(
       'SERIOUS',
       'serious',
       'Cảnh báo nghiêm trọng',
-      'Không tìm thấy bên cho vay trong danh sách cấp phép và lãi suất thực vượt 100%/năm. ' +
+      'Không tìm thấy bên cho vay trong danh sách cấp phép và tiền lãi vượt mức tham khảo 100%/năm tính cho số ngày vay. ' +
         'Đây là dấu hiệu rủi ro nghiêm trọng, nhưng chỉ cơ quan có thẩm quyền mới kết luận được. ' +
         'Một số doanh nghiệp hợp pháp (ví dụ cầm đồ) hoạt động ngoài danh sách tổ chức tín dụng, nên hãy kiểm tra giấy đăng ký kinh doanh. ' +
         'Hãy cân nhắc kỹ trước khi vay hoặc trả thêm.'
@@ -75,13 +76,13 @@ function classifyBase(licence, apr) {
  * Warning signs the user ticked matter even when the rate is low:
  * a low rate does not make an unverified lender safe.
  */
-export function classify(licence, apr, signalCount = 0) {
-  const base = classifyBase(licence, apr);
+export function classify(licence, extra, cap20, cap100, signalCount = 0) {
+  const base = classifyBase(licence, extra, cap20, cap100);
   if (signalCount > 0 && licence !== LICENSED && base.code !== 'SERIOUS') {
     return label(
       'RISK_SIGNALS',
       'high',
-      `Có dấu hiệu rủi ro, dù lãi suất ${apr <= 100 ? 'chưa quá cao' : 'cao'}`,
+      `Có dấu hiệu rủi ro, dù lãi suất ${extra <= cap100 ? 'chưa quá cao' : 'cao'}`,
       `Bạn đã đánh dấu ${signalCount} dấu hiệu đáng ngờ và chưa xác minh được bên cho vay trong danh sách cấp phép. ` +
         'Lãi suất thấp không có nghĩa là an toàn: một số bên thu phí trước, đòi quyền truy cập danh bạ hoặc mạo danh tên khác. ' +
         'Hãy dừng lại, kiểm tra tên pháp lý và mã số doanh nghiệp, và đừng gửi thêm giấy tờ hay tiền trước khi xác minh.'
