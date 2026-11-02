@@ -91,15 +91,6 @@ export function analyze(input) {
     result.fees = fees;
     result.listedFeesVnd = listedFees;
   }
-  if (input.monthlyIncomeVnd != null) {
-    const payment = monthly ? Math.round(r / n) : r;
-    result.burden = {
-      incomeVnd: input.monthlyIncomeVnd,
-      paymentVnd: payment,
-      percent: round1((payment / input.monthlyIncomeVnd) * 100),
-      basis: result.repaymentType,
-    };
-  }
   if (monthly) {
     result.installments = n;
     result.installmentVnd = Math.round(r / n);

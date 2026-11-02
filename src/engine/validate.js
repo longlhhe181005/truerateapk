@@ -7,7 +7,7 @@ export const MAX_MONTHS = 300;
 
 /**
  * input: { principalVnd, totalRepayVnd, repaymentType, termDays, installments, lenderName,
- *          statedRatePercent, contractAmountVnd, monthlyIncomeVnd }
+ *          statedRatePercent, contractAmountVnd }
  * Returns { field: message } (empty object when valid).
  */
 export function validate(input) {
@@ -51,10 +51,6 @@ export function validate(input) {
   const contract = input.contractAmountVnd;
   if (contract != null && (contract <= 0 || contract > MAX_AMOUNT)) {
     errors.contractAmountVnd = 'Số tiền ghi trong hợp đồng không hợp lệ. Hãy để trống nếu không muốn nhập.';
-  }
-  const income = input.monthlyIncomeVnd;
-  if (income != null && (income <= 0 || income > 10_000_000_000)) {
-    errors.monthlyIncomeVnd = 'Thu nhập không hợp lệ. Hãy để trống nếu bạn không muốn nhập.';
   }
   return errors;
 }

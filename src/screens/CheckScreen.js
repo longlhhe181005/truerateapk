@@ -30,7 +30,6 @@ const EMPTY = {
   lenderName: '',
   statedRate: '',
   contractAmount: '',
-  income: '',
   fees: [],
   signals: [],
 };
@@ -60,7 +59,6 @@ function toInput(f) {
     lenderName: f.lenderName,
     statedRatePercent: parseDecimal(f.statedRate),
     contractAmountVnd: parseMoney(f.contractAmount),
-    monthlyIncomeVnd: parseMoney(f.income),
     fees: f.fees.map((x) => ({ name: x.name, amountVnd: parseMoney(x.amount) })),
     signals: f.signals,
   };
@@ -128,7 +126,6 @@ export default function CheckScreen({ navigation }) {
     lenderName: errors.lenderName,
     statedRate: errors.statedRatePercent,
     contractAmount: errors.contractAmountVnd,
-    income: errors.monthlyIncomeVnd,
   };
 
   const pickPhoto = async (fromCamera) => {
@@ -370,18 +367,6 @@ export default function CheckScreen({ navigation }) {
                     onToggle={() => toggleSignal(code)}
                   />
                 ))}
-              </Card>
-
-              <Card title="Khả năng trả nợ" icon="wallet">
-                <Field
-                  label="Thu nhập mỗi tháng"
-                  hint="Chỉ dùng để tính tỷ lệ tiền trả so với thu nhập."
-                  error={err.income}
-                  value={form.income}
-                  onChangeText={setMoney('income')}
-                  keyboardType="number-pad"
-                  suffix="đ"
-                />
               </Card>
             </>
           )}

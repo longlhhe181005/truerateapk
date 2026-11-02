@@ -19,7 +19,9 @@ React Native (Expo) app for the MMA course: type four numbers from a loan contra
 | US-11 Licensed lenders | `LendersScreen` with search |
 | US-12 Share an anonymous result card | Share button (no lender name, no amounts) |
 | US-16 Read a contract photo | Camera / gallery via `expo-image-picker`, read by the backend |
-| Extra | Optional local history (off by default), instalment schedule, debt-to-income ratio |
+| Income check | On the result: enter monthly income to see the share taken by repayment and what is left. Calculated on the device, never sent or stored |
+| Credit record (CIC) | On the result: what to do before borrowing, how late payment moves the loan between debt groups, and whether this lender is likely to report |
+| Extra | Optional local history (off by default), instalment schedule |
 
 All numbers and labels are decided by code in `src/engine` (ported from the Spring Boot backend's `core`, `license` and `risk` packages). The app works fully offline; AI only words the result.
 

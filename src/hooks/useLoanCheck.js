@@ -22,7 +22,9 @@ export default function useLoanCheck() {
         try {
           final = { ...result, ...(await explain(input)) };
         } catch (e) {
-          final = { ...result, ai: { mode: 'offline', note: e.message } };
+          // fetch reports a network failure as a TypeError with English text
+          const note = e instanceof TypeError ? 'Không kết nối được máy chủ nên đang dùng câu giải thích mẫu.' : e.message;
+          final = { ...result, ai: { mode: 'offline', note } };
         } finally {
           setLoading(false);
         }

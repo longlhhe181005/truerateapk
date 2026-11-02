@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Bullet, Button, Card, Row, textStyles } from '../components/ui';
 import RiskBadge from '../components/RiskBadge';
 import RateMeter from '../components/RateMeter';
+import IncomeCard from '../components/IncomeCard';
+import CicCard from '../components/CicCard';
 import { percent, vnd } from '../engine/format';
 import { colors, radius } from '../theme';
 
@@ -137,27 +139,6 @@ export default function ResultScreen({ route, navigation }) {
           </Card>
         )}
 
-        {r.burden && (
-          <Card title="So với thu nhập" icon="wallet">
-            <Row
-              label={r.burden.basis === 'MONTHLY' ? 'Mỗi tháng phải trả' : 'Khoản trả một lần'}
-              value={vnd(r.burden.paymentVnd)}
-            />
-            <Row label="Thu nhập mỗi tháng" value={vnd(r.burden.incomeVnd)} />
-            <Row
-              label="Tỷ lệ"
-              value={`${percent(r.burden.percent)}%`}
-              strong
-              color={r.burden.percent > 40 ? colors.danger : r.burden.percent > 30 ? colors.caution : colors.safe}
-            />
-            {r.burden.percent > 40 && (
-              <Text style={textStyles.muted}>
-                Trả nợ chiếm hơn 40% thu nhập dễ khiến bạn phải vay thêm để trả nợ cũ.
-              </Text>
-            )}
-          </Card>
-        )}
-
         {r.schedule && (
           <Card title={`Lịch trả góp · ${r.installments} kỳ × ${vnd(r.installmentVnd)}`} icon="calendar">
             <TouchableOpacity onPress={() => setShowSchedule((v) => !v)}>
@@ -202,6 +183,9 @@ export default function ResultScreen({ route, navigation }) {
             <Text style={[textStyles.body, { flex: 1, fontWeight: '600' }]}>{r.nextStepText}</Text>
           </View>
         </Card>
+
+        <IncomeCard result={r} />
+        <CicCard licenceStatus={r.licence.status} />
 
         <Card title="Quyền của bạn" icon="hand-left">
           {r.rights.map((t) => (
