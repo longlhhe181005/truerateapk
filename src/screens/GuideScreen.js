@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { Bullet, Button, Card, Row, textStyles } from '../components/ui';
 import useApp from '../hooks/useApp';
 import { API_URL, hasBackend, health } from '../api/backend';
@@ -115,10 +114,6 @@ export default function GuideScreen() {
             )
           }
         />
-        <View style={styles.footer}>
-          <Ionicons name="shield-half" size={16} color={colors.accent} />
-          <Text style={styles.footerText}>TrueRate · Group 4 · IB1908</Text>
-        </View>
         <Text style={styles.disclaimer}>{DISCLAIMER}</Text>
       </ScrollView>
     </SafeAreaView>
@@ -134,7 +129,5 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace', default: 'monospace' }),
     fontSize: 13,
   },
-  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6 },
-  footerText: { color: colors.muted, fontWeight: '600' },
   disclaimer: { color: colors.faint, fontSize: 12, textAlign: 'center', paddingBottom: 16 },
 });
